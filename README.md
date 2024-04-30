@@ -116,12 +116,5 @@ with open("12345.fafreplay", "rb") as f:
 assert faf_data == scfa_data
 ```
 
-Note that there are several versions of the `.fafreplay` format. Version 1 uses
-base64 and zlib compression which are both part of the python standard library.
-However, version 2 uses `zstd` which must be installed through a third party
-package. To ensure that this dependency is installed you can use the `faf` extra
-when installing the parser:
-
-```
-pip install "faf-replay-parser[faf]"
-```
+Note that faf replays are often stream-compressed using zstd library. 
+Because of that, `zstandard` library is required. 

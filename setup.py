@@ -12,6 +12,7 @@ setup(
     version=package["version"],
     author=re.match(r"(\w+).*(<.*>)?", package["authors"][0]).group(1),
     description=package["description"],
+    install_requires=["zstandard >= 0.22.0"],
     rust_extensions=[RustExtension(
         "fafreplay._fafreplay",
         binding=Binding.PyO3
