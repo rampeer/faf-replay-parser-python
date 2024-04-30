@@ -4,29 +4,31 @@ import base64
 import json
 import zlib
 try:
-    import zstd
+    import zstandard
 except ImportError:
-    zstd = None
+    zstandard = None
 
 
 def extract_scfa(fobj):
     """extract_scfa(fobj: io.BytesIO) -> bytes
 
-    Turns data from `.fafreplay` format into `.scfareplay` format. The zstd
-    library needs to be installed in order to decode version 2 of the
-    `.fafreplay` format.
+    Converts data from .fafreplay format to .scfareplay format.
+    `zstandard` library must be installed if replays are compressed using zstd stream compression.
+    (which is true for modern FAF replays)
     """
     header = json.loads(fobj.readline().decode())
     buf = fobj.read()
-    version = header.get("version", 1)
+    compression_type = header.get("compression")
 
-    if version == 1:
+    if compression_type == "zlib":
         decoded = base64.decodebytes(buf)
         decoded = decoded[4:]  # skip the decoded size
         return zlib.decompress(decoded)
-    elif version == 2:
-        if zstd is None:
+    elif compression_type == "zstd":
+        if zstandard is None:
             raise RuntimeError(
-                "zstd is required for decompressing this replay"
+                "zstandard is required for decompressing this replay; please install it!"
             )
-        return zstd.decompress(buf)
+        reader = zstandard.ZstdDecompressor().stream_reader(buf)
+        data = reader.read()
+        return data
